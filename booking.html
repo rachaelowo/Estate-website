@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<!-- NAVIGATION -->
+
 <header class="navbar">
   <div class="logo">Ennie Garden Estate</div>
   <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
@@ -21,7 +21,6 @@
   </nav>
 </header>
 
-<!-- BOOKING SECTION -->
 <section class="booking-section">
   <h2>Schedule a Private Inspection</h2>
 
@@ -65,7 +64,7 @@
 </section>
 <script src="js/main.js"></script>
 <script>
-/* Submit form data and open WhatsApp */
+
 document.getElementById("bookingForm").addEventListener("submit", async function(e) {
   e.preventDefault();
   
@@ -76,11 +75,11 @@ document.getElementById("bookingForm").addEventListener("submit", async function
   const date = document.querySelector('input[name="preferredDate"]').value;
   const time = document.querySelector('input[name="preferredTime"]').value;
   
-  // Show loading message
+
   document.getElementById("confirmation").textContent = "Saving your information...";
   
   try {
-    // Send data to backend
+
     const response = await fetch('/api/lead', {
       method: 'POST',
       headers: {
@@ -101,7 +100,7 @@ document.getElementById("bookingForm").addEventListener("submit", async function
     if (result.success) {
       document.getElementById("confirmation").textContent = "✓ Information saved! Opening WhatsApp...";
       
-      // Open WhatsApp with pre-filled message
+     
       const message = `Hello Ennie Garden Estate,\n\nI would like to schedule an inspection.\n\nName: ${name}\nEmail: ${email}\nRoom Type: ${roomType}\nPreferred Date: ${date}\nPreferred Time: ${time}`;
       const whatsappLink = `https://wa.me/2348012345678?text=${encodeURIComponent(message)}`;
       
@@ -117,7 +116,7 @@ document.getElementById("bookingForm").addEventListener("submit", async function
   }
 });
 
-/* Auto-select room from URL */
+
 const params = new URLSearchParams(window.location.search);
 const selectedRoom = params.get("room");
 if (selectedRoom) {

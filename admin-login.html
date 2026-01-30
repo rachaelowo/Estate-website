@@ -11,13 +11,6 @@
 
 <div class="login-container">
   <div class="login-box">
-    <header class="navbar">
-      <div class="logo">Ennie Garden Estate - Admin</div>
-      <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
-      <nav>
-        <a href="index.html">Website</a>
-      </nav>
-    </header>
     <h1>Admin Dashboard</h1>
     <p>Ennie Garden Estate</p>
 
@@ -58,11 +51,11 @@ async function handleLogin(event) {
   const loginBtn = document.getElementById('loginBtn');
   const loadingSpinner = document.getElementById('loadingSpinner');
 
-  // Clear messages
+ 
   errorMsg.style.display = 'none';
   successMsg.style.display = 'none';
 
-  // Show loading
+ 
   loginBtn.disabled = true;
   loadingSpinner.classList.add('active');
 
@@ -78,14 +71,14 @@ async function handleLogin(event) {
     const result = await response.json();
 
     if (result.success) {
-      // Save token to localStorage
+      
       localStorage.setItem('adminToken', result.token);
       console.log('Login successful, token saved:', result.token);
       
       successMsg.textContent = 'Login successful! Redirecting...';
       successMsg.style.display = 'block';
 
-      // Redirect to admin dashboard after 500ms
+      
       setTimeout(() => {
         console.log('Redirecting to admin.html');
         window.location.href = '/admin.html';
@@ -105,7 +98,7 @@ async function handleLogin(event) {
   }
 }
 
-// Auto-focus password field
+
 window.addEventListener('load', () => {
   document.getElementById('password').focus();
 });

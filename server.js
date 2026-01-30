@@ -7,16 +7,15 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// In-memory token store for admin sessions (persists until server restart)
 const validTokens = new Set();
 
-// Middleware to parse JSON
+
 app.use(express.json());
 
-// Serve static files
+
 app.use(express.static(path.join(__dirname)));
 
-// Email Transporter Setup
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -25,7 +24,7 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// MongoDB Connection
+
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -52,7 +51,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   console.error('MongoDB connection error:', error);
 });
 
-// Lead Schema
+
 const leadSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -65,7 +64,7 @@ const leadSchema = new mongoose.Schema({
 
 const Lead = mongoose.model('Lead', leadSchema);
 
-// Contact Schema (for general inquiries)
+
 const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
@@ -76,7 +75,7 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('Contact', contactSchema);
 
-// Room Schema for availability management
+
 const roomSchema = new mongoose.Schema({
   name: { type: String, required: true },
   slug: { type: String, required: true, unique: true },
@@ -89,7 +88,7 @@ const roomSchema = new mongoose.Schema({
 
 const Room = mongoose.model('Room', roomSchema);
 
-// Function to send email notification
+
 async function sendEmailNotification(lead) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -117,7 +116,7 @@ async function sendEmailNotification(lead) {
   }
 }
 
-// Function to send contact notification
+
 async function sendContactNotification(contact) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -141,17 +140,17 @@ async function sendContactNotification(contact) {
   }
 }
 
-// Endpoint to receive lead data
+
 app.post('/api/lead', async (req, res) => {
   try {
     const { name, email, phone, roomType, preferredDate, preferredTime } = req.body;
 
-    // Validation
+  
     if (!name || !email || !phone || !roomType) {
       return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
 
-    // Create new lead
+    
     const lead = new Lead({
       name,
       email,
@@ -161,12 +160,12 @@ app.post('/api/lead', async (req, res) => {
       preferredTime
     });
 
-    // Save to database
+   
     await lead.save();
 
     console.log('Lead saved:', lead);
 
-    // Send email notification
+    
     await sendEmailNotification(lead);
 
     res.status(200).json({ 
@@ -181,7 +180,7 @@ app.post('/api/lead', async (req, res) => {
   }
 });
 
-// Endpoint to receive general contact inquiries
+
 app.post('/api/contact', async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
@@ -195,7 +194,7 @@ app.post('/api/contact', async (req, res) => {
 
     console.log('Contact saved:', contact);
 
-    // Send email notification
+  
     await sendContactNotification(contact);
 
     res.status(200).json({ success: true, message: 'Contact received. Thank you!' });
@@ -205,10 +204,10 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// Endpoint to get all leads
+
 app.get('/api/leads', async (req, res) => {
   try {
-    // Check authentication
+    
     const token = req.headers.authorization?.split(' ')[1];
     if (!token || !validTokens.has(token)) {
       return res.status(401).json({ success: false, error: 'Unauthorized' });
@@ -222,7 +221,7 @@ app.get('/api/leads', async (req, res) => {
   }
 });
 
-// Public endpoint to get rooms and availability
+
 app.get('/api/rooms', async (req, res) => {
   try {
     const rooms = await Room.find().sort({ name: 1 });
@@ -233,7 +232,7 @@ app.get('/api/rooms', async (req, res) => {
   }
 });
 
-// Protected endpoint to create or update rooms (admin only)
+
 app.post('/api/rooms', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -247,7 +246,7 @@ app.post('/api/rooms', async (req, res) => {
 
     let room = await Room.findOne({ slug });
     if (room) {
-      // update
+    
       room.name = name;
       room.description = description;
       room.totalUnits = totalUnits ?? room.totalUnits;
@@ -266,7 +265,7 @@ app.post('/api/rooms', async (req, res) => {
   }
 });
 
-// Protected endpoint to update availability (PATCH)
+
 app.patch('/api/rooms/:id/availability', async (req, res) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
@@ -294,7 +293,7 @@ app.patch('/api/rooms/:id/availability', async (req, res) => {
   }
 });
 
-// Login endpoint
+
 app.post('/api/admin/login', (req, res) => {
   const { password } = req.body;
 
@@ -303,13 +302,13 @@ app.post('/api/admin/login', (req, res) => {
   }
 
   if (password === process.env.ADMIN_PASSWORD) {
-    // Generate a strong random token and store it in memory
+   
     const crypto = require('crypto');
     const token = crypto.randomBytes(32).toString('hex');
-    // Initialize token store if necessary
+   
     if (!global.validTokens) global.validTokens = new Set();
     global.validTokens.add(token);
-    // Also expose a local reference for faster checks
+ 
     validTokens.add(token);
 
     res.status(200).json({ 
@@ -322,7 +321,7 @@ app.post('/api/admin/login', (req, res) => {
   }
 });
 
-// Start the server
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

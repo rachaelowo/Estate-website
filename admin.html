@@ -55,7 +55,7 @@
     </select>
   </div>
 
-  <!-- Rooms availability manager -->
+
   <section id="roomsManager" style="margin-top:30px;">
     <h2>Rooms Availability</h2>
     <div id="roomsList" class="room-grid" style="margin-top:12px;"></div>
@@ -88,7 +88,7 @@
 let allLeads = [];
 let isAuthenticated = false;
 
-// Check if user is logged in on page load
+
 window.addEventListener('load', () => {
   const token = localStorage.getItem('adminToken');
   console.log('Page loaded, checking token:', !!token);
@@ -102,18 +102,18 @@ window.addEventListener('load', () => {
   console.log('Token found, user is logged in');
   isAuthenticated = true;
   
-  // Load the data
+  
   loadLeads();
 });
 
-// Logout function
+
 function logout() {
   localStorage.removeItem('adminToken');
   console.log('Logged out');
   window.location.href = '/admin-login.html';
 }
 
-// Fetch all leads from backend
+
 async function loadLeads() {
   try {
     const token = localStorage.getItem('adminToken');
@@ -155,7 +155,7 @@ async function loadLeads() {
   }
 }
 
-// Display leads in table
+
 function displayLeads(leads) {
   const loadingMsg = document.getElementById('loadingMessage');
   const leadsTable = document.getElementById('leadsTable');
@@ -191,11 +191,11 @@ function displayLeads(leads) {
   }).join('');
 }
 
-// Update statistics
+
 function updateStats() {
   document.getElementById('totalLeads').textContent = allLeads.length;
 
-  // Count this month
+
   const now = new Date();
   const thisMonth = allLeads.filter(lead => {
     const leadDate = new Date(lead.createdAt);
@@ -203,7 +203,7 @@ function updateStats() {
   }).length;
   document.getElementById('monthLeads').textContent = thisMonth;
 
-  // Most popular room
+ 
   if (allLeads.length > 0) {
     const roomCounts = {};
     allLeads.forEach(lead => {
@@ -214,7 +214,7 @@ function updateStats() {
   }
 }
 
-// Filter table based on search
+
 function filterTable() {
   const searchValue = document.getElementById('searchInput').value.toLowerCase();
   const roomValue = document.getElementById('roomFilter').value;
@@ -229,14 +229,14 @@ function filterTable() {
   displayLeads(filtered);
 }
 
-// Refresh data
+
 function refreshData() {
   document.getElementById('loadingMessage').style.display = 'block';
   document.getElementById('leadsTable').style.display = 'none';
   loadLeads();
 }
 
-// Export to CSV
+
 function exportCSV() {
   if (allLeads.length === 0) {
     alert('No leads to export');
@@ -258,14 +258,14 @@ function exportCSV() {
   a.click();
 }
 
-// Show error message
+
 function showError(message) {
   const errorDiv = document.getElementById('errorMessage');
   errorDiv.textContent = message;
   errorDiv.style.display = 'block';
 }
 
-// Auto-refresh every 30 seconds (only if logged in)
+
 setInterval(() => {
   const token = localStorage.getItem('adminToken');
   if (token) {
@@ -276,7 +276,7 @@ setInterval(() => {
   }
 }, 30000);
 
-// --- Rooms management ---
+
 let allRooms = [];
 
 async function loadRooms() {
@@ -330,7 +330,7 @@ async function updateAvailability(roomId) {
     const json = await res.json();
     if (json.success) {
       document.getElementById(`avail-${roomId}`).textContent = json.data.availableUnits;
-      // reload rooms to reflect changes
+      
       loadRooms();
     } else {
       alert('Failed to update: ' + (json.error || 'unknown'));
@@ -341,7 +341,7 @@ async function updateAvailability(roomId) {
   }
 }
 
-// load rooms once when admin page loads
+
 window.addEventListener('load', () => {
   const token = localStorage.getItem('adminToken');
   if (token) loadRooms();
