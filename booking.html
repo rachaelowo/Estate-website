@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Schedule Visit | Ennie Garden Estate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<header class="navbar">
+  <div class="logo">Ennie Garden Estate</div>
+  <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="rooms.html">Rooms</a>
+    <a href="booking.html" class="active">Schedule Visit</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+</header>
+
+<!-- BOOKING SECTION -->
+<section class="booking-section">
+  <h2>Schedule a Private Inspection</h2>
+
+  <p class="booking-subtitle">
+    Book a private estate tour with our representatives.
+    Inspection slots fill up quickly — early booking is recommended.
+  </p>
+
+  <form id="bookingForm" class="booking-form">
+
+    <div class="form-group">
+      <input type="text" name="name" placeholder="Full Name" required>
+      <input type="email" name="email" placeholder="Email Address" required>
+    </div>
+
+    <div class="form-group">
+      <input type="tel" name="phone" placeholder="Phone Number" required>
+      <select id="roomSelect" name="roomType" required>
+        <option value="">Select Room Type</option>
+        <option>One Bedroom Suite</option>
+        <option>Two Bedroom Apartment</option>
+        <option>Studio Apartment</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <input type="date" name="preferredDate" required>
+      <input type="time" name="preferredTime" required>
+    </div>
+
+    <button class="btn booking-btn" type="submit">
+      Contact on WhatsApp
+    </button>
+<br>
+    <small class="form-note">
+      Your information will be saved and you'll be redirected to WhatsApp to complete your inquiry.
+    </small>
+
+    <p id="confirmation" class="confirmation"></p>
+  </form>
+</section>
+<script src="js/main.js"></script>
+<script>
+/* Submit form data and open WhatsApp */
+document.getElementById("bookingForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+  
+  const name = document.querySelector('input[name="name"]').value;
+  const email = document.querySelector('input[name="email"]').value;
+  const phone = document.querySelector('input[name="phone"]').value;
+  const roomType = document.getElementById("roomSelect").value;
+  const date = document.querySelector('input[name="preferredDate"]').value;
+  const time = document.querySelector('input[name="preferredTime"]').value;
+  
+  // Show loading message
+  document.getElementById("confirmation").textContent = "Saving your information...";
+  
+  try {
+    // Send data to backend
+    const response = await fetch('/api/lead', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        roomType,
+        preferredDate: date,
+        preferredTime: time
+      })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      document.getElementById("confirmation").textContent = "✓ Information saved! Opening WhatsApp...";
+      
+      // Open WhatsApp with pre-filled message
+      const message = `Hello Ennie Garden Estate,\n\nI would like to schedule an inspection.\n\nName: ${name}\nEmail: ${email}\nRoom Type: ${roomType}\nPreferred Date: ${date}\nPreferred Time: ${time}`;
+      const whatsappLink = `https://wa.me/2348012345678?text=${encodeURIComponent(message)}`;
+      
+      setTimeout(() => {
+        window.open(whatsappLink, "_blank");
+      }, 1000);
+    } else {
+      document.getElementById("confirmation").textContent = "Error: " + result.error;
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById("confirmation").textContent = "Error saving information. Please try again.";
+  }
+});
+
+/* Auto-select room from URL */
+const params = new URLSearchParams(window.location.search);
+const selectedRoom = params.get("room");
+if (selectedRoom) {
+  document.getElementById("roomSelect").value = selectedRoom;
+}
+</script>
+
+</body>
+<footer>
+  <p>© 2025 Ennie Garden Estate. All rights reserved.</p>
+
+  <a
+    href="https://wa.me/2348012345678?text=Hello%20Ennie%20Garden%20Estate.%20I%20am%20interested%20in%20investment%20opportunities%20within%20the%20estate."
+    class="footer-whatsapp"
+    target="_blank"
+  >
+    Investment Opportunities – Chat on WhatsApp
+  </a>
+</footer>
+
+
+</html>

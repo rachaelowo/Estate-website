@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login | Ennie Garden Estate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  
+</head>
+<body style="margin: 0; padding: 0;">
+
+<div class="login-container">
+  <div class="login-box">
+    <header class="navbar">
+      <div class="logo">Ennie Garden Estate - Admin</div>
+      <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+      <nav>
+        <a href="index.html">Website</a>
+      </nav>
+    </header>
+    <h1>Admin Dashboard</h1>
+    <p>Ennie Garden Estate</p>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label for="password">Admin Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          placeholder="Enter admin password" 
+          required
+          autocomplete="off"
+        >
+      </div>
+
+      <button type="submit" class="login-btn" id="loginBtn">
+        Sign In
+      </button>
+
+      <div class="loading" id="loadingSpinner">
+        <div class="spinner"></div>
+        
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+async function handleLogin(event) {
+  event.preventDefault();
+
+  const password = document.getElementById('password').value;
+  const errorMsg = document.getElementById('errorMessage');
+  const successMsg = document.getElementById('successMessage');
+  const loginBtn = document.getElementById('loginBtn');
+  const loadingSpinner = document.getElementById('loadingSpinner');
+
+  // Clear messages
+  errorMsg.style.display = 'none';
+  successMsg.style.display = 'none';
+
+  // Show loading
+  loginBtn.disabled = true;
+  loadingSpinner.classList.add('active');
+
+  try {
+    const response = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ password })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Save token to localStorage
+      localStorage.setItem('adminToken', result.token);
+      console.log('Login successful, token saved:', result.token);
+      
+      successMsg.textContent = 'Login successful! Redirecting...';
+      successMsg.style.display = 'block';
+
+      // Redirect to admin dashboard after 500ms
+      setTimeout(() => {
+        console.log('Redirecting to admin.html');
+        window.location.href = '/admin.html';
+      }, 500);
+    } else {
+      errorMsg.textContent = result.error || 'Login failed';
+      errorMsg.style.display = 'block';
+      loginBtn.disabled = false;
+      loadingSpinner.classList.remove('active');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    errorMsg.textContent = 'Error: ' + error.message;
+    errorMsg.style.display = 'block';
+    loginBtn.disabled = false;
+    loadingSpinner.classList.remove('active');
+  }
+}
+
+// Auto-focus password field
+window.addEventListener('load', () => {
+  document.getElementById('password').focus();
+});
+</script>
+
+</body>
+</html>

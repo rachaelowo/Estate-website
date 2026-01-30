@@ -1,0 +1,759 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* GLOBAL */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: #0f172a;
+  color: #e5e7eb;
+  line-height: 1.6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+h1, h2, h3 {
+  color: #f8fafc;
+}
+
+section {
+  padding: 70px 10%;
+}
+
+/* NAVBAR */
+.navbar {
+  background: #020617;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 10%;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #38bdf8;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .nav-toggle { display: block; }
+  .navbar nav { display: none; width: 100%; }
+  .navbar nav.open { display: flex; flex-direction: column; padding: 10px 6%; background: #020617; }
+  .navbar nav a { margin: 10px 0; }
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+.navbar nav a {
+  margin-left: 25px;
+  font-size: 0.95rem;
+  transition: color 0.3s ease;
+}
+
+.navbar nav a:hover,
+.navbar nav a.active {
+  color: #38bdf8;
+}
+
+/* HERO */
+.hero {
+  min-height: 90vh;
+  background: linear-gradient(
+      rgba(2, 6, 23, 0.7),
+      rgba(2, 6, 23, 0.9)
+    ),
+    url("../images/estate-bg.jpg") center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.small-hero {
+  min-height: 50vh;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.hero-content p {
+  font-size: 1.1rem;
+  color: #cbd5f5;
+}
+
+/* BUTTON */
+.btn {
+  display: inline-block;
+  margin-top: 25px;
+  padding: 14px 35px;
+  background: #38bdf8;
+  color: #020617;
+  font-weight: bold;
+  border-radius: 30px;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  background: #0ea5e9;
+  transform: translateY(-3px);
+}
+
+.btn:focus {
+  outline: 3px solid rgba(56,189,248,0.18);
+  outline-offset: 2px;
+}
+
+/* HIGHLIGHTS */
+.highlights {
+  background: #020617;
+  text-align: center;
+}
+
+.highlights h2 {
+  margin-bottom: 40px;
+  font-size: 2rem;
+}
+
+.highlight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 25px;
+}
+
+/* BOOKING PAGE */
+.booking-section {
+  background: linear-gradient(135deg, #020617, #0f172a);
+  padding: 90px 10%;
+  text-align: center;
+}
+
+.booking-section h2 {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+}
+
+.booking-subtitle {
+  color: #cbd5f5;
+  margin-bottom: 45px;
+}
+
+/* FORM CARD */
+.booking-form {
+  max-width: 900px;
+  margin: auto;
+  background: #020617;
+  padding: 50px;
+  border-radius: 20px;
+  border: 1px solid #1e293b;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+}
+
+.form-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+.booking-form input,
+.booking-form select {
+  padding: 16px 18px;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 0.95rem;
+}
+
+.booking-form input::placeholder,
+.booking-form select::placeholder,
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+
+.booking-form input:focus,
+.booking-form select:focus {
+  outline: none;
+  border-color: #38bdf8;
+}
+
+.booking-btn {
+  width: 100%;
+  max-width: 320px;
+  margin-top: 10px;
+}
+
+.confirmation {
+  margin-top: 20px;
+  color: #38bdf8;
+  font-weight: 500;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .form-group {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-form {
+    padding: 35px 25px;
+  }
+
+  .hero-content h1 {
+    font-size: 2.2rem;
+  }
+
+  section {
+    padding: 60px 6%;
+  }
+
+  .navbar nav a {
+    margin-left: 15px;
+    font-size: 0.85rem;
+  }
+}
+
+
+.card {
+  background: #020617;
+  border: 1px solid #1e293b;
+  padding: 35px 25px;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(56, 189, 248, 0.15);
+}
+
+/* Focus styles for accessibility */
+a:focus,
+.footer-whatsapp:focus,
+.btn-secondary:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 3px solid rgba(56,189,248,0.12);
+  outline-offset: 2px;
+}
+
+/* ABOUT PAGE */
+.about-section {
+  background: #0f172a;
+}
+
+.about-container {
+  max-width: 1000px;
+  margin: auto;
+  display: grid;
+  gap: 40px;
+}
+
+.about-text h2 {
+  margin-bottom: 15px;
+  font-size: 1.8rem;
+  color: #38bdf8;
+}
+
+.about-text p {
+  font-size: 1rem;
+  color: #d1d5db;
+}
+
+.about-list {
+  list-style: none;
+  margin-top: 15px;
+}
+
+.about-list li {
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+/* ROOMS */
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.room-card {
+  background: #020617;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px solid #1e293b;
+  transition: transform 0.3s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-8px);
+}
+
+.room-card.sold-out {
+  opacity: 0.6;
+  filter: grayscale(0.25);
+}
+
+.room-card .disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.room-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.room-card h3 {
+  padding: 15px 20px 5px;
+}
+
+.room-card p {
+  padding: 0 20px 10px;
+  color: #cbd5f5;
+}
+
+.price {
+  display: block;
+  padding: 0 20px 20px;
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+/* CTA */
+.cta {
+  background: linear-gradient(135deg, #020617, #0f172a);
+  text-align: center;
+}
+
+.cta h2 {
+  font-size: 2.2rem;
+  margin-bottom: 10px;
+}
+
+.cta p {
+  color: #cbd5f5;
+}
+
+/* FOOTER */
+footer {
+  background: #020617;
+  text-align: center;
+  padding: 25px;
+  font-size: 0.9rem;
+  color: #94a3b8;
+}
+
+/* RESPONSIVE */
+/* (media rules consolidated above) */
+
+/* INVESTMENT OPPORTUNITY */
+.investment-section {
+  background: linear-gradient(135deg, #020617, #0f172a);
+  text-align: center;
+  padding: 80px 10%;
+}
+
+.investment-section h2 {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  color: #f8fafc;
+}
+
+.investment-section p {
+  max-width: 780px;
+  margin: 0 auto 45px;
+  font-size: 1rem;
+  color: #cbd5f5;
+  line-height: 1.7;
+}
+
+/* INVESTMENT GRID */
+.investment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto 45px;
+}
+
+.investment-card {
+  background: #020617;
+  border: 1px solid #1e293b;
+  padding: 35px 25px;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.investment-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 18px 35px rgba(56, 189, 248, 0.15);
+}
+
+.investment-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 10px;
+  color: #38bdf8;
+}
+
+.investment-card span {
+  font-size: 0.95rem;
+  color: #d1d5db;
+}
+
+
+/* FOOTER WHATSAPP */
+.footer-whatsapp {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 22px;
+  background: linear-gradient(135deg, #6366f1, #38bdf8);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.footer-whatsapp:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px rgba(99, 102, 241, 0.4);
+}
+
+/* Admin dashboard and login styles (moved from admin.html and admin-login.html) */
+
+/* Admin dashboard */
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #333;
+  padding-bottom: 20px;
+}
+
+.admin-header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.admin-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-secondary {
+  padding: 10px 20px;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-secondary:hover {
+  background: #555;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  margin: 0 0 10px 0;
+  color: #666;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.stat-card .number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  overflow-x: auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+thead {
+  background: #333;
+  color: white;
+}
+
+th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+}
+
+td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.status-new {
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-contacted {
+  background: #e8f5e9;
+  color: #388e3c;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-state svg {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.filter-bar {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.filter-bar input,
+.filter-bar select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.error-message {
+  background: #ffebee;
+  color: #c62828;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+/* Admin login styles */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-box {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+}
+
+.login-box h1 {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 24px;
+}
+
+.login-box p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 14px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.login-btn:hover {
+  transform: translateY(-2px);
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: none;
+}
+
+.success-message {
+  background: #e8f5e9;
+  color: #388e3c;
+  padding: 12px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  display: none;
+}
+
+.loading.active {
+  display: block;
+}
+
+/* small helpers */
+.hidden { display: none !important; }
+
+/* CONTACT FORM */
+.contact-form {
+  max-width: 720px;
+  margin: 20px auto 0;
+  display: grid;
+  gap: 12px;
+  background: transparent;
+}
+
+.contact-form label {
+  font-size: 0.95rem;
+  color: #cbd5f5;
+}
+
+.contact-form input,
+.contact-form textarea {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #1e293b;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 0.95rem;
+}
+
+.contact-form button {
+  padding: 12px 18px;
+  background: #38bdf8;
+  color: #020617;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  width: 180px;
+}
+
+.contact-feedback {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #94a3b8;
+}
+

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard | Ennie Garden Estate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  
+</head>
+<body>
+
+<header class="navbar">
+  <div class="logo">Ennie Garden Estate - Admin</div>
+  <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <nav>
+    <a href="index.html">Website</a>
+    <a href="admin.html" class="active">Dashboard</a>
+    <a href="#" onclick="logout(); return false;">Logout</a>
+  </nav>
+</header>
+
+<section class="admin-container">
+  <div class="admin-header">
+    <h1>Booking Inquiries Dashboard</h1>
+    <div class="admin-controls">
+      <button class="btn-secondary" onclick="refreshData()">🔄 Refresh</button>
+      <button class="btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+  </div>
+
+  <div id="errorMessage" class="error-message" style="display: none;"></div>
+
+  <div class="stats" id="statsContainer">
+    <div class="stat-card">
+      <h3>Total Inquiries</h3>
+      <div class="number" id="totalLeads">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>This Month</h3>
+      <div class="number" id="monthLeads">0</div>
+    </div>
+    <div class="stat-card">
+      <h3>Most Popular Room</h3>
+      <div class="number" id="popularRoom" style="font-size: 16px;">-</div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <input type="text" id="searchInput" placeholder="Search by name or email..." onkeyup="filterTable()">
+    <select id="roomFilter" onchange="filterTable()">
+      <option value="">All Rooms</option>
+      <option value="One Bedroom Suite">One Bedroom Suite</option>
+      <option value="Two Bedroom Apartment">Two Bedroom Apartment</option>
+      <option value="Studio Apartment">Studio Apartment</option>
+    </select>
+  </div>
+
+  <!-- Rooms availability manager -->
+  <section id="roomsManager" style="margin-top:30px;">
+    <h2>Rooms Availability</h2>
+    <div id="roomsList" class="room-grid" style="margin-top:12px;"></div>
+  </section>
+
+  <div class="table-container">
+    <div id="loadingMessage" class="loading">Loading inquiries...</div>
+    <table id="leadsTable" style="display: none;">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Room Type</th>
+          <th>Preferred Date</th>
+          <th>Preferred Time</th>
+        </tr>
+      </thead>
+      <tbody id="leadsBody">
+      </tbody>
+    </table>
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <p>📭 No inquiries yet</p>
+    </div>
+  </div>
+</section>
+
+<script>
+let allLeads = [];
+let isAuthenticated = false;
+
+// Check if user is logged in on page load
+window.addEventListener('load', () => {
+  const token = localStorage.getItem('adminToken');
+  console.log('Page loaded, checking token:', !!token);
+  
+  if (!token) {
+    console.log('No token found, redirecting to login');
+    window.location.href = '/admin-login.html';
+    return;
+  }
+  
+  console.log('Token found, user is logged in');
+  isAuthenticated = true;
+  
+  // Load the data
+  loadLeads();
+});
+
+// Logout function
+function logout() {
+  localStorage.removeItem('adminToken');
+  console.log('Logged out');
+  window.location.href = '/admin-login.html';
+}
+
+// Fetch all leads from backend
+async function loadLeads() {
+  try {
+    const token = localStorage.getItem('adminToken');
+    
+    if (!token) {
+      console.log('Token missing in loadLeads, redirecting');
+      window.location.href = '/admin-login.html';
+      return;
+    }
+
+    console.log('Fetching leads with token...');
+    const response = await fetch('/api/leads', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    const result = await response.json();
+
+    if (response.status === 401) {
+      console.log('Token invalid (401), redirecting to login');
+      localStorage.removeItem('adminToken');
+      window.location.href = '/admin-login.html';
+      return;
+    }
+
+    if (result.success) {
+      console.log('Leads loaded successfully:', result.data.length);
+      allLeads = result.data;
+      displayLeads(allLeads);
+      updateStats();
+    } else {
+      console.error('Failed to load leads:', result.error);
+      showError('Failed to load inquiries: ' + (result.error || 'Unknown error'));
+    }
+  } catch (error) {
+    console.error('Error loading leads:', error);
+    showError('Error loading inquiries: ' + error.message);
+  }
+}
+
+// Display leads in table
+function displayLeads(leads) {
+  const loadingMsg = document.getElementById('loadingMessage');
+  const leadsTable = document.getElementById('leadsTable');
+  const emptyState = document.getElementById('emptyState');
+  const leadsBody = document.getElementById('leadsBody');
+
+  loadingMsg.style.display = 'none';
+
+  if (leads.length === 0) {
+    emptyState.style.display = 'block';
+    leadsTable.style.display = 'none';
+    return;
+  }
+
+  leadsTable.style.display = 'table';
+  emptyState.style.display = 'none';
+
+  leadsBody.innerHTML = leads.map(lead => {
+    const date = new Date(lead.createdAt);
+    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+
+    return `
+      <tr>
+        <td>${formattedDate}</td>
+        <td><strong>${lead.name}</strong></td>
+        <td>${lead.email}</td>
+        <td><a href="https://wa.me/${lead.phone}" target="_blank">${lead.phone}</a></td>
+        <td>${lead.roomType}</td>
+        <td>${lead.preferredDate || '-'}</td>
+        <td>${lead.preferredTime || '-'}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// Update statistics
+function updateStats() {
+  document.getElementById('totalLeads').textContent = allLeads.length;
+
+  // Count this month
+  const now = new Date();
+  const thisMonth = allLeads.filter(lead => {
+    const leadDate = new Date(lead.createdAt);
+    return leadDate.getMonth() === now.getMonth() && leadDate.getFullYear() === now.getFullYear();
+  }).length;
+  document.getElementById('monthLeads').textContent = thisMonth;
+
+  // Most popular room
+  if (allLeads.length > 0) {
+    const roomCounts = {};
+    allLeads.forEach(lead => {
+      roomCounts[lead.roomType] = (roomCounts[lead.roomType] || 0) + 1;
+    });
+    const popular = Object.entries(roomCounts).sort((a, b) => b[1] - a[1])[0][0];
+    document.getElementById('popularRoom').textContent = popular.replace(' Suite', '').replace(' Apartment', '');
+  }
+}
+
+// Filter table based on search
+function filterTable() {
+  const searchValue = document.getElementById('searchInput').value.toLowerCase();
+  const roomValue = document.getElementById('roomFilter').value;
+
+  const filtered = allLeads.filter(lead => {
+    const matchesSearch = lead.name.toLowerCase().includes(searchValue) || 
+                         lead.email.toLowerCase().includes(searchValue);
+    const matchesRoom = roomValue === '' || lead.roomType === roomValue;
+    return matchesSearch && matchesRoom;
+  });
+
+  displayLeads(filtered);
+}
+
+// Refresh data
+function refreshData() {
+  document.getElementById('loadingMessage').style.display = 'block';
+  document.getElementById('leadsTable').style.display = 'none';
+  loadLeads();
+}
+
+// Export to CSV
+function exportCSV() {
+  if (allLeads.length === 0) {
+    alert('No leads to export');
+    return;
+  }
+
+  let csv = 'Date,Name,Email,Phone,Room Type,Preferred Date,Preferred Time\n';
+  
+  allLeads.forEach(lead => {
+    const date = new Date(lead.createdAt).toLocaleString();
+    csv += `"${date}","${lead.name}","${lead.email}","${lead.phone}","${lead.roomType}","${lead.preferredDate || ''}","${lead.preferredTime || ''}"\n`;
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `estate-leads-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+}
+
+// Show error message
+function showError(message) {
+  const errorDiv = document.getElementById('errorMessage');
+  errorDiv.textContent = message;
+  errorDiv.style.display = 'block';
+}
+
+// Auto-refresh every 30 seconds (only if logged in)
+setInterval(() => {
+  const token = localStorage.getItem('adminToken');
+  if (token) {
+    loadLeads();
+    loadRooms();
+  } else {
+    window.location.href = '/admin-login.html';
+  }
+}, 30000);
+
+// --- Rooms management ---
+let allRooms = [];
+
+async function loadRooms() {
+  try {
+    const res = await fetch('/api/rooms');
+    const json = await res.json();
+    if (json.success) {
+      allRooms = json.data;
+      displayRooms(allRooms);
+    }
+  } catch (err) {
+    console.error('Error loading rooms:', err);
+  }
+}
+
+function displayRooms(rooms) {
+  const container = document.getElementById('roomsList');
+  if (!container) return;
+
+  container.innerHTML = rooms.map(room => {
+    const soldOut = room.availableUnits <= 0;
+    return `
+      <div class="card">
+        <h3>${room.name}</h3>
+        <p>${room.description || ''}</p>
+        <p><strong>Available:</strong> <span id="avail-${room._id}">${room.availableUnits}</span> / ${room.totalUnits}</p>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <input type="number" id="input-${room._id}" value="${room.availableUnits}" min="0" max="${room.totalUnits}" style="width:80px;padding:8px;border-radius:6px;border:1px solid #ddd;background:#fff;color:#000;">
+          <button class="btn-secondary" onclick="updateAvailability('${room._id}')">Save</button>
+          ${soldOut ? '<span class="status-new">Sold out</span>' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function updateAvailability(roomId) {
+  const token = localStorage.getItem('adminToken');
+  if (!token) return window.location.href = '/admin-login.html';
+
+  const input = document.getElementById(`input-${roomId}`);
+  const newVal = Number(input.value);
+
+  try {
+    const res = await fetch(`/api/rooms/${roomId}/availability`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ availableUnits: newVal })
+    });
+
+    const json = await res.json();
+    if (json.success) {
+      document.getElementById(`avail-${roomId}`).textContent = json.data.availableUnits;
+      // reload rooms to reflect changes
+      loadRooms();
+    } else {
+      alert('Failed to update: ' + (json.error || 'unknown'));
+    }
+  } catch (err) {
+    console.error('Error updating availability:', err);
+    alert('Network error updating availability');
+  }
+}
+
+// load rooms once when admin page loads
+window.addEventListener('load', () => {
+  const token = localStorage.getItem('adminToken');
+  if (token) loadRooms();
+});
+</script>
+
+</body>
+</html>
