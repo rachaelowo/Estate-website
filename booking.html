@@ -8,14 +8,13 @@
 </head>
 <body>
 
-
 <header class="navbar">
   <div class="logo">Ennie Garden Estate</div>
   <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
   <nav>
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
-    <a href="rooms.html">Rooms</a>
+    <a href="rooms.html">Units</a>
     <a href="booking.html" class="active">Schedule Visit</a>
     <a href="contact.html">Contact</a>
   </nav>
@@ -25,8 +24,8 @@
   <h2>Schedule a Private Inspection</h2>
 
   <p class="booking-subtitle">
-    Book a private estate tour with our representatives.
-    Inspection slots fill up quickly — early booking is recommended.
+    Explore our exclusive 4 Bedroom Fully Detached Duplex.
+    Limited units available — early booking is recommended.
   </p>
 
   <form id="bookingForm" class="booking-form">
@@ -38,11 +37,11 @@
 
     <div class="form-group">
       <input type="tel" name="phone" placeholder="Phone Number" required>
-      <select id="roomSelect" name="roomType" required>
-        <option value="">Select Room Type</option>
-        <option>One Bedroom Suite</option>
-        <option>Two Bedroom Apartment</option>
-        <option>Studio Apartment</option>
+      <select id="roomSelect" name="unitType" required>
+        <option value="">Select Unit</option>
+        <option value="4 Bedroom Fully Detached Duplex">
+          4 Bedroom Fully Detached Duplex
+        </option>
       </select>
     </div>
 
@@ -54,37 +53,56 @@
     <button class="btn booking-btn" type="submit">
       Contact on WhatsApp
     </button>
-<br>
+
+    <br>
+
     <small class="form-note">
-      Your information will be saved and you'll be redirected to WhatsApp to complete your inquiry.
+      1st Unit: ₦500,000,000 | Other Units: ₦450,000,000
     </small>
 
     <p id="confirmation" class="confirmation"></p>
   </form>
 </section>
-<script src="js/main.js"></script>
-<script>
 
+<footer>
+  <p>© 2025 Ennie Garden Estate. All rights reserved.</p>
+
+  <a
+    href="https://wa.me/12368632635?text=Hello%20Ennie%20Garden%20Estate.%20I%20am%20interested%20in%20investment%20opportunities%20within%20the%20estate."
+    class="footer-whatsapp"
+    target="_blank"
+  >
+    Investment Opportunities – Chat on WhatsApp
+  </a>
+</footer>
+
+<script src="js/main.js"></script>
+
+<script>
 document.getElementById("bookingForm").addEventListener("submit", async function(e) {
   e.preventDefault();
-  
-  const name = document.querySelector('input[name="name"]').value;
-  const email = document.querySelector('input[name="email"]').value;
-  const phone = document.querySelector('input[name="phone"]').value;
-  const roomType = document.getElementById("roomSelect").value;
+
+  const name = document.querySelector('input[name="name"]').value.trim();
+  const email = document.querySelector('input[name="email"]').value.trim();
+  const phone = document.querySelector('input[name="phone"]').value.trim();
+  const roomType = document.querySelector('select[name="unitType"]').value;
   const date = document.querySelector('input[name="preferredDate"]').value;
   const time = document.querySelector('input[name="preferredTime"]').value;
-  
 
-  document.getElementById("confirmation").textContent = "Saving your information...";
-  
+  const confirmation = document.getElementById("confirmation");
+
+  if (!name || !email || !phone || !roomType || !date || !time) {
+    confirmation.textContent = "Error: Missing required fields";
+    confirmation.style.color = "red";
+    return;
+  }
+
+  confirmation.textContent = "Saving your information...";
+
   try {
-
-    const response = await fetch('/api/lead', {
+    const res = await fetch('http://localhost:3000/api/lead', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name,
         email,
@@ -94,48 +112,32 @@ document.getElementById("bookingForm").addEventListener("submit", async function
         preferredTime: time
       })
     });
-    
-    const result = await response.json();
-    
+
+    const result = await res.json();
+
     if (result.success) {
-      document.getElementById("confirmation").textContent = "✓ Information saved! Opening WhatsApp...";
+      confirmation.textContent = "✓ Saved! Opening WhatsApp...";
       
-     
-      const message = `Hello Ennie Garden Estate,\n\nI would like to schedule an inspection.\n\nName: ${name}\nEmail: ${email}\nRoom Type: ${roomType}\nPreferred Date: ${date}\nPreferred Time: ${time}`;
-      const whatsappLink = `https://wa.me/2348012345678?text=${encodeURIComponent(message)}`;
-      
-      setTimeout(() => {
-        window.open(whatsappLink, "_blank");
-      }, 1000);
+      const message = `Hello Ennie Garden Estate,
+
+I would like to schedule an inspection.
+
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+Unit: ${roomType}
+Preferred Date: ${date}
+Preferred Time: ${time}`;
+
+      window.open(`https://wa.me/12368632635?text=${encodeURIComponent(message)}`, "_blank");
     } else {
-      document.getElementById("confirmation").textContent = "Error: " + result.error;
+      confirmation.textContent = result.error || "Submission failed";
     }
-  } catch (error) {
-    console.error('Error:', error);
-    document.getElementById("confirmation").textContent = "Error saving information. Please try again.";
+
+  } catch (err) {
+    confirmation.textContent = "Cannot connect to server";
   }
 });
-
-
-const params = new URLSearchParams(window.location.search);
-const selectedRoom = params.get("room");
-if (selectedRoom) {
-  document.getElementById("roomSelect").value = selectedRoom;
-}
 </script>
-
 </body>
-<footer>
-  <p>© 2025 Ennie Garden Estate. All rights reserved.</p>
-
-  <a
-    href="https://wa.me/2348012345678?text=Hello%20Ennie%20Garden%20Estate.%20I%20am%20interested%20in%20investment%20opportunities%20within%20the%20estate."
-    class="footer-whatsapp"
-    target="_blank"
-  >
-    Investment Opportunities – Chat on WhatsApp
-  </a>
-</footer>
-
-
 </html>

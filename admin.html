@@ -5,13 +5,12 @@
   <title>Admin Dashboard | Ennie Garden Estate</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
-  
 </head>
 <body>
 
 <header class="navbar">
   <div class="logo">Ennie Garden Estate - Admin</div>
-  <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+  <button class="nav-toggle">☰</button>
   <nav>
     <a href="index.html">Website</a>
     <a href="admin.html" class="active">Dashboard</a>
@@ -28,9 +27,9 @@
     </div>
   </div>
 
-  <div id="errorMessage" class="error-message" style="display: none;"></div>
+  <div id="errorMessage" class="error-message" style="display:none;"></div>
 
-  <div class="stats" id="statsContainer">
+  <div class="stats">
     <div class="stat-card">
       <h3>Total Inquiries</h3>
       <div class="number" id="totalLeads">0</div>
@@ -40,45 +39,46 @@
       <div class="number" id="monthLeads">0</div>
     </div>
     <div class="stat-card">
-      <h3>Most Popular Room</h3>
-      <div class="number" id="popularRoom" style="font-size: 16px;">-</div>
+      <h3>Most Popular Unit</h3>
+      <div class="number" id="popularUnit" style="font-size:16px;">-</div>
     </div>
   </div>
 
   <div class="filter-bar">
     <input type="text" id="searchInput" placeholder="Search by name or email..." onkeyup="filterTable()">
-    <select id="roomFilter" onchange="filterTable()">
-      <option value="">All Rooms</option>
-      <option value="One Bedroom Suite">One Bedroom Suite</option>
-      <option value="Two Bedroom Apartment">Two Bedroom Apartment</option>
-      <option value="Studio Apartment">Studio Apartment</option>
+    <select id="unitFilter" onchange="filterTable()">
+      <option value="">All Units</option>
+      <option value="4 Bedroom Fully Detached Duplex">4 Bedroom Fully Detached Duplex</option>
     </select>
   </div>
 
 
-  <section id="roomsManager" style="margin-top:30px;">
-    <h2>Rooms Availability</h2>
-    <div id="roomsList" class="room-grid" style="margin-top:12px;"></div>
+  <section style="margin-top:40px;">
+    <div class="admin-header">
+      <h2>Units Availability</h2>
+    </div>
+    <div id="featured-rooms" class="room-grid"></div>
   </section>
 
   <div class="table-container">
     <div id="loadingMessage" class="loading">Loading inquiries...</div>
-    <table id="leadsTable" style="display: none;">
+
+    <table id="leadsTable" style="display:none;">
       <thead>
         <tr>
           <th>Date</th>
           <th>Name</th>
           <th>Email</th>
           <th>Phone</th>
-          <th>Room Type</th>
+          <th>Unit</th>
           <th>Preferred Date</th>
           <th>Preferred Time</th>
         </tr>
       </thead>
-      <tbody id="leadsBody">
-      </tbody>
+      <tbody id="leadsBody"></tbody>
     </table>
-    <div id="emptyState" class="empty-state" style="display: none;">
+
+    <div id="emptyState" class="empty-state" style="display:none;">
       <p>📭 No inquiries yet</p>
     </div>
   </div>
@@ -86,103 +86,73 @@
 
 <script>
 let allLeads = [];
-let isAuthenticated = false;
-
+let allRooms = [];
 
 window.addEventListener('load', () => {
   const token = localStorage.getItem('adminToken');
-  console.log('Page loaded, checking token:', !!token);
-  
-  if (!token) {
-    console.log('No token found, redirecting to login');
-    window.location.href = '/admin-login.html';
-    return;
-  }
-  
-  console.log('Token found, user is logged in');
-  isAuthenticated = true;
-  
-  
+  if (!token) return window.location.href = 'admin-login.html';
+
   loadLeads();
+  loadRooms();
 });
 
+function refreshData() {
+  loadLeads();
+  loadRooms();
+}
 
 function logout() {
   localStorage.removeItem('adminToken');
-  console.log('Logged out');
-  window.location.href = '/admin-login.html';
+  window.location.href = 'admin-login.html';
 }
 
-
 async function loadLeads() {
+  const token = localStorage.getItem('adminToken');
+
   try {
-    const token = localStorage.getItem('adminToken');
-    
-    if (!token) {
-      console.log('Token missing in loadLeads, redirecting');
-      window.location.href = '/admin-login.html';
-      return;
-    }
-
-    console.log('Fetching leads with token...');
-    const response = await fetch('/api/leads', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+    const res = await fetch('http://localhost:3000/api/lead', {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
-    
-    const result = await response.json();
 
-    if (response.status === 401) {
-      console.log('Token invalid (401), redirecting to login');
-      localStorage.removeItem('adminToken');
-      window.location.href = '/admin-login.html';
-      return;
-    }
+    if (res.status === 401) return logout();
+
+    const result = await res.json();
 
     if (result.success) {
-      console.log('Leads loaded successfully:', result.data.length);
       allLeads = result.data;
       displayLeads(allLeads);
       updateStats();
-    } else {
-      console.error('Failed to load leads:', result.error);
-      showError('Failed to load inquiries: ' + (result.error || 'Unknown error'));
     }
-  } catch (error) {
-    console.error('Error loading leads:', error);
-    showError('Error loading inquiries: ' + error.message);
+  } catch (err) {
+    showError('Error loading inquiries');
+  } finally {
+    document.getElementById('loadingMessage').style.display = 'none';
   }
 }
 
-
 function displayLeads(leads) {
-  const loadingMsg = document.getElementById('loadingMessage');
-  const leadsTable = document.getElementById('leadsTable');
-  const emptyState = document.getElementById('emptyState');
-  const leadsBody = document.getElementById('leadsBody');
+  const body = document.getElementById('leadsBody');
+  const table = document.getElementById('leadsTable');
+  const empty = document.getElementById('emptyState');
 
-  loadingMsg.style.display = 'none';
-
-  if (leads.length === 0) {
-    emptyState.style.display = 'block';
-    leadsTable.style.display = 'none';
+  if (!leads.length) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
     return;
   }
 
-  leadsTable.style.display = 'table';
-  emptyState.style.display = 'none';
+  table.style.display = 'table';
+  empty.style.display = 'none';
 
-  leadsBody.innerHTML = leads.map(lead => {
-    const date = new Date(lead.createdAt);
-    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+  body.innerHTML = leads.map(lead => {
+    const date = new Date(lead.createdAt).toLocaleString();
 
     return `
       <tr>
-        <td>${formattedDate}</td>
+        <td>${date}</td>
         <td><strong>${lead.name}</strong></td>
         <td>${lead.email}</td>
-        <td><a href="https://wa.me/${lead.phone}" target="_blank">${lead.phone}</a></td>
+        <td>${lead.phone}</td>
         <td>${lead.roomType}</td>
         <td>${lead.preferredDate || '-'}</td>
         <td>${lead.preferredTime || '-'}</td>
@@ -191,122 +161,119 @@ function displayLeads(leads) {
   }).join('');
 }
 
-
 function updateStats() {
   document.getElementById('totalLeads').textContent = allLeads.length;
 
-
   const now = new Date();
-  const thisMonth = allLeads.filter(lead => {
-    const leadDate = new Date(lead.createdAt);
-    return leadDate.getMonth() === now.getMonth() && leadDate.getFullYear() === now.getFullYear();
-  }).length;
-  document.getElementById('monthLeads').textContent = thisMonth;
+  const monthLeads = allLeads.filter(lead => {
+    const d = new Date(lead.createdAt);
+    return d.getMonth() === now.getMonth() &&
+           d.getFullYear() === now.getFullYear();
+  });
 
- 
-  if (allLeads.length > 0) {
-    const roomCounts = {};
-    allLeads.forEach(lead => {
-      roomCounts[lead.roomType] = (roomCounts[lead.roomType] || 0) + 1;
-    });
-    const popular = Object.entries(roomCounts).sort((a, b) => b[1] - a[1])[0][0];
-    document.getElementById('popularRoom').textContent = popular.replace(' Suite', '').replace(' Apartment', '');
+  document.getElementById('monthLeads').textContent = monthLeads.length;
+
+  if (!allLeads.length) {
+    document.getElementById('popularUnit').textContent = '-';
+    return;
   }
+
+  const counts = {};
+  allLeads.forEach(lead => {
+    counts[lead.roomType] = (counts[lead.roomType] || 0) + 1;
+  });
+
+  const popular = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])[0][0];
+
+  document.getElementById('popularUnit').textContent = popular;
 }
 
-
 function filterTable() {
-  const searchValue = document.getElementById('searchInput').value.toLowerCase();
-  const roomValue = document.getElementById('roomFilter').value;
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const unit = document.getElementById('unitFilter').value;
 
   const filtered = allLeads.filter(lead => {
-    const matchesSearch = lead.name.toLowerCase().includes(searchValue) || 
-                         lead.email.toLowerCase().includes(searchValue);
-    const matchesRoom = roomValue === '' || lead.roomType === roomValue;
-    return matchesSearch && matchesRoom;
+    const matchesSearch =
+      lead.name.toLowerCase().includes(search) ||
+      lead.email.toLowerCase().includes(search);
+
+    const matchesUnit =
+      !unit || lead.roomType.includes(unit);
+
+    return matchesSearch && matchesUnit;
   });
 
   displayLeads(filtered);
 }
 
+async function exportCSV() {
+  if (!allLeads.length) return alert('No data to export');
 
-function refreshData() {
-  document.getElementById('loadingMessage').style.display = 'block';
-  document.getElementById('leadsTable').style.display = 'none';
-  loadLeads();
-}
+  const rows = [
+    ['Date', 'Name', 'Email', 'Phone', 'Unit', 'Preferred Date', 'Preferred Time']
+  ];
 
-
-function exportCSV() {
-  if (allLeads.length === 0) {
-    alert('No leads to export');
-    return;
-  }
-
-  let csv = 'Date,Name,Email,Phone,Room Type,Preferred Date,Preferred Time\n';
-  
   allLeads.forEach(lead => {
-    const date = new Date(lead.createdAt).toLocaleString();
-    csv += `"${date}","${lead.name}","${lead.email}","${lead.phone}","${lead.roomType}","${lead.preferredDate || ''}","${lead.preferredTime || ''}"\n`;
+    rows.push([
+      new Date(lead.createdAt).toLocaleString(),
+      lead.name,
+      lead.email,
+      lead.phone,
+      lead.roomType,
+      lead.preferredDate || '',
+      lead.preferredTime || ''
+    ]);
   });
 
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
+  const csvContent = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+
   const a = document.createElement('a');
   a.href = url;
-  a.download = `estate-leads-${new Date().toISOString().split('T')[0]}.csv`;
+  a.download = 'leads.csv';
   a.click();
+
+  URL.revokeObjectURL(url);
 }
-
-
-function showError(message) {
-  const errorDiv = document.getElementById('errorMessage');
-  errorDiv.textContent = message;
-  errorDiv.style.display = 'block';
-}
-
-
-setInterval(() => {
-  const token = localStorage.getItem('adminToken');
-  if (token) {
-    loadLeads();
-    loadRooms();
-  } else {
-    window.location.href = '/admin-login.html';
-  }
-}, 30000);
-
-
-let allRooms = [];
 
 async function loadRooms() {
   try {
-    const res = await fetch('/api/rooms');
+    const res = await fetch('http://localhost:3000/api/rooms');
     const json = await res.json();
+
     if (json.success) {
       allRooms = json.data;
       displayRooms(allRooms);
     }
   } catch (err) {
-    console.error('Error loading rooms:', err);
+    console.error(err);
   }
 }
 
 function displayRooms(rooms) {
-  const container = document.getElementById('roomsList');
-  if (!container) return;
+  const container = document.getElementById('featured-rooms');
 
   container.innerHTML = rooms.map(room => {
     const soldOut = room.availableUnits <= 0;
+
     return `
-      <div class="card">
+      <div class="room-card">
         <h3>${room.name}</h3>
         <p>${room.description || ''}</p>
-        <p><strong>Available:</strong> <span id="avail-${room._id}">${room.availableUnits}</span> / ${room.totalUnits}</p>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <input type="number" id="input-${room._id}" value="${room.availableUnits}" min="0" max="${room.totalUnits}" style="width:80px;padding:8px;border-radius:6px;border:1px solid #ddd;background:#fff;color:#000;">
+        <p><strong>Available:</strong> ${room.availableUnits} / ${room.totalUnits}</p>
+        <span class="price">${room.price}</span>
+
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input type="number" id="input-${room._id}" value="${room.availableUnits}" min="0" max="${room.totalUnits}">
           <button class="btn-secondary" onclick="updateAvailability('${room._id}')">Save</button>
-          ${soldOut ? '<span class="status-new">Sold out</span>' : ''}
+          ${soldOut ? '<span class="status-new">Sold Out</span>' : ''}
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input type="text" id="price-${room._id}" value="${room.price}">
+          <button class="btn-secondary" onclick="updatePrice('${room._id}')">Update Price</button>
         </div>
       </div>
     `;
@@ -315,38 +282,57 @@ function displayRooms(rooms) {
 
 async function updateAvailability(roomId) {
   const token = localStorage.getItem('adminToken');
-  if (!token) return window.location.href = '/admin-login.html';
-
   const input = document.getElementById(`input-${roomId}`);
   const newVal = Number(input.value);
 
   try {
-    const res = await fetch(`/api/rooms/${roomId}/availability`, {
+    const res = await fetch(`http://localhost:3000/api/rooms/${roomId}/availability`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify({ availableUnits: newVal })
     });
 
     const json = await res.json();
-    if (json.success) {
-      document.getElementById(`avail-${roomId}`).textContent = json.data.availableUnits;
-      
-      loadRooms();
-    } else {
-      alert('Failed to update: ' + (json.error || 'unknown'));
-    }
-  } catch (err) {
-    console.error('Error updating availability:', err);
-    alert('Network error updating availability');
+    if (json.success) loadRooms();
+    else alert('Update failed');
+
+  } catch {
+    alert('Network error');
   }
 }
 
-
-window.addEventListener('load', () => {
+async function updatePrice(roomId) {
   const token = localStorage.getItem('adminToken');
-  if (token) loadRooms();
-});
-</script>
+  const input = document.getElementById(`price-${roomId}`);
+  const newPrice = input.value;
 
+  try {
+    const res = await fetch(`http://localhost:3000/api/rooms/${roomId}/price`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ price: newPrice })
+    });
+
+    const json = await res.json();
+    if (json.success) loadRooms();
+    else alert('Price update failed');
+
+  } catch {
+    alert('Network error');
+  }
+}
+
+function showError(msg) {
+  const err = document.getElementById('errorMessage');
+  err.textContent = msg;
+  err.style.display = 'block';
+}
+</script>
 </body>
 </html>

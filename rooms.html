@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Rooms | Ennie Garden Estate</title>
+  <meta charset="UTF-8">  
+  <title>Units | Ennie Garden Estate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -13,45 +14,47 @@
   <nav>
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
-    <a href="rooms.html">Rooms</a>
+    <a href="rooms.html" class="active">Units</a>
     <a href="booking.html">Schedule Visit</a>
     <a href="contact.html">Contact</a>
   </nav>
 </header>
 
 <section class="featured-rooms">
-  <h2>Available Rooms</h2>
-
   <div class="room-grid">
 
     <div class="room-card available">
-      <img src="images/one room suite.webp" alt="One Bedroom Suite">
-      <h3>One Bedroom Suite</h3>
-      <p>Spacious and well-finished</p>
-      <p><strong>Available:</strong> <span class="availability-count">5</span></p>
-      <span class="price">$45,000</span>
-      <a href="booking.html?room=One+Bedroom+Suite" class="btn">Book Inspection</a>
+      <video src="videos/Ennie estate unit.mp4" autoplay muted loop playsinline></video>
+      <h3>4 Bedroom Fully Detached Duplex</h3>
+      <p>Luxury fully detached duplex with premium finishing</p>
+      <p>Study room ensuite (convertible to bedroom)</p>
+      <p>Two spacious living rooms (upstairs & downstairs)</p>
+      <p><strong>Available:</strong> <span class="availability-count">1</span></p>
+      <span class="price">₦500,000,000</span>
+
+      <a href="booking.html?unit=4+Bedroom+Fully+Detached+Duplex" class="btn">
+        Schedule Inspection
+      </a>
     </div>
 
     <div class="room-card available">
-      <img src="images/two room suite.webp" alt="Two Bedroom Apartment">
-      <h3>Two Bedroom Apartment</h3>
-      <p>Perfect for families</p>
-      <p><strong>Available:</strong> <span class="availability-count">3</span></p>
-      <span class="price">$70,000</span>
-      <a href="booking.html?room=Two+Bedroom+Apartment" class="btn">Book Inspection</a>
-    </div>
-
-    <div class="room-card available">
-      <img src="images/studio apartment.webp" alt="Studio Apartment">
-      <h3>Studio Apartment</h3>
-      <p>Modern and compact</p>
+      <video src="videos/Ennie estate unit 2.mp4" autoplay muted loop playsinline></video>
+      <h3>4 Bedroom Fully Detached Duplex</h3>
+      <p>Modern kitchen with fitted microwave & oven</p>
+      <p>6 burner gas cooker & luxury island</p>
+      <p>Solar water heater & smart door lock</p>
+      <p>Inbuilt speakers & CCTV cameras</p>
       <p><strong>Available:</strong> <span class="availability-count">4</span></p>
-      <span class="price">$35,000</span>
-      <a href="booking.html?room=Studio+Apartment" class="btn">Book Inspection</a>
+      <span class="price">₦450,000,000</span>
+
+      <a href="booking.html?unit=4+Bedroom+Fully+Detached+Duplex" class="btn">
+        Schedule Inspection
+      </a>
     </div>
+
   </div>
 </section>
+
 <footer>
   <p>© 2025 Ennie Garden Estate. All rights reserved.</p>
 
@@ -64,6 +67,49 @@
   </a>
 </footer>
 
+<script>
+window.addEventListener('load', seedRooms);
+
+async function seedRooms() {
+  const cards = document.querySelectorAll('.room-card');
+
+  for (const card of cards) {
+    const name = card.querySelector('h3')?.innerText.trim();
+    const price = card.querySelector('.price')?.innerText.trim();
+    const availableText = card.querySelector('.availability-count')?.innerText.trim();
+
+    const availableUnits = Number(availableText) || 0;
+
+    if (!name || !price) continue;
+
+    const slug = name.toLowerCase().replace(/\s+/g, '-');
+
+    const roomData = {
+      name,
+      slug,
+      price,
+      totalUnits: availableUnits,
+      availableUnits
+    };
+
+    try {
+      await fetch('/api/rooms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer DEV_SEED'
+        },
+        body: JSON.stringify(roomData)
+      });
+
+      console.log('Seeded:', name);
+
+    } catch (err) {
+      console.error('Seed error:', err);
+    }
+  }
+}
+</script>
 
 </body>
 </html>

@@ -61,7 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
           contactForm.reset();
         } else {
           const json = await res.json().catch(() => ({}));
-          feedback.textContent = json.error || 'Failed to send message. Please try again later.';
+          feedback.textContent = "Please fill in all required fields";
+
         }
       } catch (err) {
         feedback.textContent = 'Network error — check your connection.';

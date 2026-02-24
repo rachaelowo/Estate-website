@@ -42,67 +42,36 @@
 </div>
 
 <script>
-async function handleLogin(event) {
-  event.preventDefault();
+async function handleLogin(e) {
+  e.preventDefault();
 
   const password = document.getElementById('password').value;
   const errorMsg = document.getElementById('errorMessage');
-  const successMsg = document.getElementById('successMessage');
-  const loginBtn = document.getElementById('loginBtn');
-  const loadingSpinner = document.getElementById('loadingSpinner');
 
- 
   errorMsg.style.display = 'none';
-  successMsg.style.display = 'none';
-
- 
-  loginBtn.disabled = true;
-  loadingSpinner.classList.add('active');
 
   try {
-    const response = await fetch('/api/admin/login', {
+    const res = await fetch('http://localhost:3000/api/admin/login', {   // ← UPDATE PORT if needed
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password })
     });
 
-    const result = await response.json();
+    const result = await res.json();
 
     if (result.success) {
-      
       localStorage.setItem('adminToken', result.token);
-      console.log('Login successful, token saved:', result.token);
-      
-      successMsg.textContent = 'Login successful! Redirecting...';
-      successMsg.style.display = 'block';
-
-      
-      setTimeout(() => {
-        console.log('Redirecting to admin.html');
-        window.location.href = '/admin.html';
-      }, 500);
+      window.location.href = 'admin.html';
     } else {
-      errorMsg.textContent = result.error || 'Login failed';
+      errorMsg.textContent = result.error || 'Invalid password';
       errorMsg.style.display = 'block';
-      loginBtn.disabled = false;
-      loadingSpinner.classList.remove('active');
     }
-  } catch (error) {
-    console.error('Error:', error);
-    errorMsg.textContent = 'Error: ' + error.message;
+  } catch (err) {
+    errorMsg.textContent = 'Cannot connect to server';
     errorMsg.style.display = 'block';
-    loginBtn.disabled = false;
-    loadingSpinner.classList.remove('active');
   }
 }
-
-
-window.addEventListener('load', () => {
-  document.getElementById('password').focus();
-});
 </script>
-
 </body>
 </html>
+
