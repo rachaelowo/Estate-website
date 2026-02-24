@@ -5,6 +5,7 @@
   <title>Admin Login | Ennie Garden Estate</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   
 </head>
 <body style="margin: 0; padding: 0;">
@@ -51,7 +52,7 @@ async function handleLogin(e) {
   errorMsg.style.display = 'none';
 
   try {
-    const res = await fetch('http://localhost:3000/api/admin/login', {   // ← UPDATE PORT if needed
+    const res = await fetch('http://localhost:3000/api/admin/login', {   
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password })

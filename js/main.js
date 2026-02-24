@@ -1,6 +1,3 @@
-// Simulated availability (can later come from backend)
-const availableRooms = 7;
-
 const availabilityEl = document.getElementById("availability");
 
 if (availabilityEl) {
@@ -11,7 +8,7 @@ if (availabilityEl) {
 }
 console.log("Prime Haven Estate website loaded");
 
-// Responsive navigation toggle
+
 document.addEventListener('DOMContentLoaded', () => {
   const navToggle = document.querySelector('.nav-toggle');
   const nav = document.querySelector('.navbar nav');
@@ -22,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
       navToggle.classList.toggle('open');
     });
 
-    // Close nav when clicking outside
     document.addEventListener('click', (e) => {
       if (!nav.contains(e.target) && !navToggle.contains(e.target)) {
         nav.classList.remove('open');
@@ -31,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Contact form submit handler
   const contactForm = document.getElementById('contact-form');
   if (contactForm) {
     const feedback = document.getElementById('contact-feedback');
@@ -73,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Load rooms and update UI (booking select and room cards)
 async function applyRoomAvailability() {
   try {
     const res = await fetch('/api/rooms');
@@ -82,7 +76,7 @@ async function applyRoomAvailability() {
 
     const rooms = json.data;
 
-    // Update booking select if present
+  
     const roomSelect = document.getElementById('roomSelect');
     if (roomSelect) {
       for (let i = 0; i < roomSelect.options.length; i++) {
@@ -100,7 +94,7 @@ async function applyRoomAvailability() {
       }
     }
 
-    // Update room cards (rooms.html)
+    
     const cards = document.querySelectorAll('.room-card');
     cards.forEach(card => {
       const titleEl = card.querySelector('h3');
@@ -136,7 +130,7 @@ async function applyRoomAvailability() {
   }
 }
 
-// Run on load
+
 document.addEventListener('DOMContentLoaded', () => {
   applyRoomAvailability();
 });
