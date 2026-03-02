@@ -111,7 +111,6 @@ async function applyRoomAvailability() {
           if (link) {
             link.textContent = 'Book Inspection';
             link.classList.remove('disabled');
-            // ensure href present
             const params = new URLSearchParams();
             params.set('room', name);
             link.href = `booking.html?${params.toString()}`;

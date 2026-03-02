@@ -101,7 +101,7 @@ document.getElementById("bookingForm").addEventListener("submit", async function
   confirmation.textContent = "Saving your information...";
 
   try {
-    const res = await fetch('http://localhost:3000/api/lead', {
+    const res = await fetch('/api/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
