@@ -102,29 +102,43 @@ app.post('/api/lead', async (req, res) => {
     const { name, email, phone, roomType, preferredDate, preferredTime } = req.body;
 
     if (!name || !email || !phone || !roomType) {
-      return res.status(400).json({ success: false });
+      return res.status(400).json({ success: false, error: "Missing required fields" });
     }
 
-    const lead = await Lead.create({ name, email, phone, roomType, preferredDate, preferredTime });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.NOTIFY_EMAIL,
-      subject: `New Booking Inquiry - ${lead.roomType}`,
-      html: `
-        <h2>New Booking Inquiry</h2>
-        <p><strong>Name:</strong> ${lead.name}</p>
-        <p><strong>Email:</strong> ${lead.email}</p>
-        <p><strong>Phone:</strong> ${lead.phone}</p>
-        <p><strong>Unit:</strong> ${lead.roomType}</p>
-      `
+    const lead = await Lead.create({
+      name,
+      email,
+      phone,
+      roomType,
+      preferredDate,
+      preferredTime
     });
+
+    // Email is optional — don't let it break booking
+    try {
+      if (process.env.EMAIL_USER && process.env.NOTIFY_EMAIL) {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: process.env.NOTIFY_EMAIL,
+          subject: `New Booking Inquiry - ${lead.roomType}`,
+          html: `
+            <p><strong>Name:</strong> ${lead.name}</p>
+            <p><strong>Email:</strong> ${lead.email}</p>
+            <p><strong>Phone:</strong> ${lead.phone}</p>
+            <p><strong>Date:</strong> ${lead.preferredDate}</p>
+            <p><strong>Time:</strong> ${lead.preferredTime}</p>
+          `
+        });
+      }
+    } catch (emailError) {
+      console.error("Booking email failed:", emailError.message);
+    }
 
     res.json({ success: true });
 
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ success: false });
+    console.error("Lead save error:", err.message);
+    res.status(500).json({ success: false, error: "Server error" });
   }
 });
 
