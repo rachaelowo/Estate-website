@@ -111,7 +111,7 @@ async function loadLeads() {
   const token = localStorage.getItem('adminToken');
 
   try {
-    const res = await fetch('http://localhost:3000/api/lead', {
+    const res = await fetch('/api/lead', {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
@@ -241,7 +241,7 @@ async function exportCSV() {
 
 async function loadRooms() {
   try {
-    const res = await fetch('http://localhost:3000/api/rooms');
+    const res = await fetch('/api/rooms');
     const json = await res.json();
 
     if (json.success) {
@@ -287,7 +287,7 @@ async function updateAvailability(roomId) {
   const newVal = Number(input.value);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/rooms/${roomId}/availability`, {
+    const res = await fetch(`/api/rooms/${roomId}/availability`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -311,7 +311,7 @@ async function updatePrice(roomId) {
   const newPrice = input.value;
 
   try {
-    const res = await fetch(`http://localhost:3000/api/rooms/${roomId}/price`, {
+    const res = await fetch(`/api/rooms/${roomId}/price`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -335,5 +335,6 @@ function showError(msg) {
   err.style.display = 'block';
 }
 </script>
+<script src="js/main.js"></script>
 </body>
 </html>
