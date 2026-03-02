@@ -86,7 +86,6 @@ mongoose.connect(process.env.MONGODB_URI)
     console.error('MongoDB connection error:', err.message);
   });
 
-/* ================= EMAIL ================= */
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -114,7 +113,6 @@ app.post('/api/lead', async (req, res) => {
       preferredTime
     });
 
-    // Email is optional — don't let it break booking
     try {
       if (process.env.EMAIL_USER && process.env.NOTIFY_EMAIL) {
         await transporter.sendMail({

@@ -80,7 +80,7 @@
 <script src="js/main.js"></script>
 
 <script>
-document.getElementById("bookingForm").addEventListener("submit", async function(e) {
+document.getElementById("bookingForm").addEventListener("submit", function(e) {
   e.preventDefault();
 
   const name = document.querySelector('input[name="name"]').value.trim();
@@ -98,28 +98,7 @@ document.getElementById("bookingForm").addEventListener("submit", async function
     return;
   }
 
-  confirmation.textContent = "Saving your information...";
-
-  try {
-    const res = await fetch('/api/lead', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name,
-        email,
-        phone,
-        roomType,
-        preferredDate: date,
-        preferredTime: time
-      })
-    });
-
-    const result = await res.json();
-
-    if (result.success) {
-      confirmation.textContent = "✓ Saved! Opening WhatsApp...";
-      
-      const message = `Hello Ennie Garden Estate,
+  const message = `Hello Ennie Garden Estate,
 
 I would like to schedule an inspection.
 
@@ -130,14 +109,12 @@ Unit: ${roomType}
 Preferred Date: ${date}
 Preferred Time: ${time}`;
 
-      window.open(`https://wa.me/12368632635?text=${encodeURIComponent(message)}`, "_blank");
-    } else {
-      confirmation.textContent = result.error || "Submission failed";
-    }
+  window.open(
+    `https://wa.me/12368632635?text=${encodeURIComponent(message)}`,
+    "_blank"
+  );
 
-  } catch (err) {
-    confirmation.textContent = "Cannot connect to server";
-  }
+  confirmation.textContent = "Opening WhatsApp...";
 });
 </script>
 </body>
