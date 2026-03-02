@@ -10,22 +10,16 @@ console.log("Prime Haven Estate website loaded");
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  const navToggle = document.querySelector('.nav-toggle');
+  const toggle = document.querySelector('.nav-toggle');
   const nav = document.querySelector('.navbar nav');
 
-  if (navToggle && nav) {
-    navToggle.addEventListener('click', () => {
+  if (toggle && nav) {
+    toggle.addEventListener('click', () => {
       nav.classList.toggle('open');
-      navToggle.classList.toggle('open');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!nav.contains(e.target) && !navToggle.contains(e.target)) {
-        nav.classList.remove('open');
-        navToggle.classList.remove('open');
-      }
     });
   }
+});
+
 
   const contactForm = document.getElementById('contact-form');
   if (contactForm) {
@@ -66,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+
 
 async function applyRoomAvailability() {
   try {

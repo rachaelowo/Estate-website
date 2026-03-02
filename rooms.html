@@ -10,8 +10,8 @@
 <body>
 
 <header class="navbar">
-  <div class="logo">Ennie Garden Estate</div>
-  <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
+    <div class="logo">Ennie Garden Estate</div>
+    <button class="nav-toggle" aria-label="Toggle navigation">☰</button>
   <nav>
     <a href="index.html">Home</a>
     <a href="about.html">About</a>
@@ -55,7 +55,7 @@
 
   </div>
 </section>
-
+<script src="js/main.js"></script>
 <footer>
   <p>© 2025 Ennie Garden Estate. All rights reserved.</p>
 
@@ -92,22 +92,6 @@ async function seedRooms() {
       totalUnits: availableUnits,
       availableUnits
     };
-
-    try {
-      await fetch('/api/rooms', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer DEV_SEED'
-        },
-        body: JSON.stringify(roomData)
-      });
-
-      console.log('Seeded:', name);
-
-    } catch (err) {
-      console.error('Seed error:', err);
-    }
   }
 }
 </script>

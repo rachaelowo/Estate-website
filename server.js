@@ -58,7 +58,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
     const count = await Room.countDocuments();
     if (count === 0) {
-      const defaults = [
+      await Room.insertMany([
         {
           name: '4 Bedroom Fully Detached Duplex (Premium Unit)',
           slug: 'duplex-premium',
@@ -77,13 +77,16 @@ mongoose.connect(process.env.MONGODB_URI)
           price: '₦450,000,000',
           status: 'available'
         }
-      ];
+      ]);
 
-      await Room.insertMany(defaults);
       console.log('Default rooms seeded');
     }
   })
-  .catch(err => console.error(err));
+  .catch(err => {
+    console.error('MongoDB connection error:', err.message);
+  });
+
+/* ================= EMAIL ================= */
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -93,8 +96,17 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-async function sendLeadNotification(lead) {
+
+app.post('/api/lead', async (req, res) => {
   try {
+    const { name, email, phone, roomType, preferredDate, preferredTime } = req.body;
+
+    if (!name || !email || !phone || !roomType) {
+      return res.status(400).json({ success: false });
+    }
+
+    const lead = await Lead.create({ name, email, phone, roomType, preferredDate, preferredTime });
+
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: process.env.NOTIFY_EMAIL,
@@ -105,49 +117,13 @@ async function sendLeadNotification(lead) {
         <p><strong>Email:</strong> ${lead.email}</p>
         <p><strong>Phone:</strong> ${lead.phone}</p>
         <p><strong>Unit:</strong> ${lead.roomType}</p>
-        <p><strong>Date:</strong> ${lead.preferredDate || '-'}</p>
-        <p><strong>Time:</strong> ${lead.preferredTime || '-'}</p>
       `
     });
-  } catch (err) {
-    console.error(err.message);
-  }
-}
-
-async function sendContactNotification(contact) {
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.NOTIFY_EMAIL,
-      subject: `New Contact Inquiry - ${contact.name}`,
-      html: `
-        <h2>New Contact Inquiry</h2>
-        <p><strong>Name:</strong> ${contact.name}</p>
-        <p><strong>Email:</strong> ${contact.email}</p>
-        <p><strong>Phone:</strong> ${contact.phone || '-'}</p>
-        <p><strong>Message:</strong><br>${contact.message}</p>
-      `
-    });
-  } catch (err) {
-    console.error(err.message);
-  }
-}
-
-app.post('/api/lead', async (req, res) => {
-  try {
-    const { name, email, phone, roomType, preferredDate, preferredTime } = req.body;
-
-    if (!name || !email || !phone || !roomType) {
-      return res.status(400).json({ success: false });
-    }
-
-    const lead = new Lead({ name, email, phone, roomType, preferredDate, preferredTime });
-    await lead.save();
-    await sendLeadNotification(lead);
 
     res.json({ success: true });
 
   } catch (err) {
+    console.error(err.message);
     res.status(500).json({ success: false });
   }
 });
@@ -160,13 +136,24 @@ app.post('/api/contact', async (req, res) => {
       return res.status(400).json({ success: false });
     }
 
-    const contact = new Contact({ name, email, phone, message });
-    await contact.save();
-    await sendContactNotification(contact);
+    const contact = await Contact.create({ name, email, phone, message });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.NOTIFY_EMAIL,
+      subject: `New Contact Inquiry - ${contact.name}`,
+      html: `
+        <h2>New Contact Inquiry</h2>
+        <p><strong>Name:</strong> ${contact.name}</p>
+        <p><strong>Email:</strong> ${contact.email}</p>
+        <p><strong>Message:</strong><br>${contact.message}</p>
+      `
+    });
 
     res.json({ success: true });
 
   } catch (err) {
+    console.error(err.message);
     res.status(500).json({ success: false });
   }
 });
@@ -192,12 +179,10 @@ app.patch('/api/rooms/:id/availability', async (req, res) => {
     return res.status(401).json({ success: false });
   }
 
-  const { availableUnits } = req.body;
   const room = await Room.findById(req.params.id);
-
   if (!room) return res.status(404).json({ success: false });
 
-  room.availableUnits = Math.max(0, Math.min(room.totalUnits, Number(availableUnits)));
+  room.availableUnits = Math.max(0, Math.min(room.totalUnits, Number(req.body.availableUnits)));
 
   if (room.availableUnits === 0) room.status = 'sold';
   else if (room.availableUnits <= 2) room.status = 'limited';
@@ -214,21 +199,17 @@ app.patch('/api/rooms/:id/price', async (req, res) => {
     return res.status(401).json({ success: false });
   }
 
-  const { price } = req.body;
   const room = await Room.findById(req.params.id);
-
   if (!room) return res.status(404).json({ success: false });
 
-  room.price = price;
+  room.price = req.body.price;
   await room.save();
 
   res.json({ success: true, data: room });
 });
 
 app.post('/api/admin/login', (req, res) => {
-  const { password } = req.body;
-
-  if (password === process.env.ADMIN_PASSWORD) {
+  if (req.body.password === process.env.ADMIN_PASSWORD) {
     const token = crypto.randomBytes(32).toString('hex');
     validTokens.add(token);
     return res.json({ success: true, token });
