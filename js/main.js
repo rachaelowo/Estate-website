@@ -3,10 +3,10 @@ const availabilityEl = document.getElementById("availability");
 if (availabilityEl) {
   availabilityEl.textContent =
     availableRooms > 0
-      ? `${availableRooms} rooms currently available for sale`
-      : "All rooms are currently sold out";
+      ? `${availableRooms} units currently available for sale`
+      : "All units are currently sold out";
 }
-console.log("Prime Haven Estate website loaded");
+console.log("Ennie Garden Estate website loaded");
 
 
 document.addEventListener('DOMContentLoaded', () => {
