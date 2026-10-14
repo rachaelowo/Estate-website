@@ -60,21 +60,21 @@ mongoose.connect(process.env.MONGODB_URI)
     if (count === 0) {
       await Room.insertMany([
         {
-          name: '4 Bedroom Fully Detached Duplex (Premium Unit)',
+          name: '5 Bedroom Fully Detached Duplex (Premium Unit)',
           slug: 'duplex-premium',
-          description: 'Premium fully detached duplex with luxury finishing, smart lock, CCTV, solar water heater, swimming pool, gym & lounge.',
+          description: '5 Bedroom ensuite + 1 study room ensuite (convertible to a room), attached Boy\'s Quarter/maid\'s room, fitted microwave, oven, 5 gas burner cooker, wash hand basin, inbuilt speakers, CCTV cameras, solar water heater. Shared swimming pool, relaxation lounge, gym house, security house & massive car park. Installmental payment accepted.',
           totalUnits: 1,
           availableUnits: 1,
-          price: '₦500,000,000',
+          price: '₦400,000,000',
           status: 'available'
         },
         {
-          name: '4 Bedroom Fully Detached Duplex (Standard Units)',
+          name: '5 Bedroom Fully Detached Duplex (Standard Units)',
           slug: 'duplex-standard',
-          description: 'Luxury duplex with study room ensuite, 2 living rooms, modern kitchen fittings & smart security.',
+          description: '5 Bedroom ensuite + 1 study room ensuite (convertible to a room), attached Boy\'s Quarter/maid\'s room, fitted microwave, oven, 5 gas burner cooker, wash hand basin, inbuilt speakers, CCTV cameras, solar water heater. Shared swimming pool, relaxation lounge, gym house, security house & massive car park. Installmental payment accepted.',
           totalUnits: 3,
           availableUnits: 3,
-          price: '₦450,000,000',
+          price: '₦350,000,000',
           status: 'available'
         }
       ]);
