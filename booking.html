@@ -113,6 +113,19 @@ Unit: ${roomType}
 Preferred Date: ${date}
 Preferred Time: ${time}`;
 
+  fetch('/api/lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name,
+      email,
+      phone,
+      roomType,
+      preferredDate: date,
+      preferredTime: time
+    })
+  }).catch(err => console.error('Lead save failed:', err));
+
   window.open(
     `https://wa.me/2348165783154?text=${encodeURIComponent(message)}`,
     "_blank"
